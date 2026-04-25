@@ -1,5 +1,6 @@
 import CommentFill from "@shared/assets/svgs/comment_fill.svg";
 import { tokens } from "@shared/constants/tokens";
+import { formatCount } from "@shared/lib/formatCount";
 import { useButtonColor } from "@shared/lib/useButtonColor";
 import React from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
@@ -9,12 +10,6 @@ interface CommentButtonProps {
   count: number;
   onPress: () => void;
   disabled?: boolean;
-}
-
-function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
 }
 
 export function CommentButton({

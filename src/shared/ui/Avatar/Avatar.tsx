@@ -1,7 +1,7 @@
+import { tokens } from '@shared/constants/tokens';
+import { Image } from 'expo-image';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
-import { tokens } from '@shared/constants/tokens';
 
 interface AvatarProps {
   uri: string | null;
@@ -13,8 +13,10 @@ export function Avatar({ uri, displayName, size = tokens.avatar.md }: AvatarProp
   const [hasError, setHasError] = useState(false);
 
   const initials = displayName
-    .split(' ')
+    .trim()
+    .split(/\s+/)
     .map((w) => w[0])
+    .filter(Boolean)
     .join('')
     .toUpperCase()
     .slice(0, 2);
@@ -23,23 +25,22 @@ export function Avatar({ uri, displayName, size = tokens.avatar.md }: AvatarProp
     width: size,
     height: size,
     borderRadius: size / 2,
+    overflow: 'hidden' as const,
   };
 
-  if (!uri || hasError) {
-    return (
-      <View style={[styles.fallback, containerStyle]}>
-        <Text style={[styles.initials, { fontSize: size * 0.36 }]}>{initials}</Text>
-      </View>
-    );
-  }
-
   return (
-    <Image
-      source={{ uri }}
-      style={containerStyle}
-      contentFit="cover"
-      onError={() => setHasError(true)}
-    />
+    <View style={[styles.fallback, containerStyle]}>
+      <Text style={[styles.initials, { fontSize: size * 0.36 }]}>{initials}</Text>
+      {uri && !hasError && (
+        <Image
+          source={{ uri }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={200}
+          onError={() => setHasError(true)}
+        />
+      )}
+    </View>
   );
 }
 
@@ -50,7 +51,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   initials: {
-    color: tokens.color.text.primary,
+    color: tokens.color.text.onAccent,
     fontFamily: tokens.font.family.bold,
   },
 });

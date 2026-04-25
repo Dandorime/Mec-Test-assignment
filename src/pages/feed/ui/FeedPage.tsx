@@ -3,10 +3,11 @@ import { tokens } from "@shared/constants/tokens";
 import { ErrorState } from "@shared/ui/ErrorState";
 import { FlashList } from "@shopify/flash-list";
 import { PostCard, PostCardSkeleton } from "@widgets/post-card";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { RefreshControl, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFeedQuery } from "../model/useFeedQuery";
+import { useFeedQuery, type FeedFilter } from "../model/useFeedQuery";
+import { FeedTabBar, TABS } from "./FeedTabBar";
 
 type SkeletonItem = { id: string; _skeleton: true };
 type ListItem = Post | SkeletonItem;
@@ -14,10 +15,7 @@ type ListItem = Post | SkeletonItem;
 const SKELETON_COUNT = 4;
 const SKELETONS: SkeletonItem[] = Array.from(
   { length: SKELETON_COUNT },
-  (_, i) => ({
-    id: `skeleton-${i}`,
-    _skeleton: true,
-  }),
+  (_, i) => ({ id: `skeleton-${i}`, _skeleton: true }),
 );
 
 function isSkeleton(item: ListItem): item is SkeletonItem {
@@ -25,6 +23,8 @@ function isSkeleton(item: ListItem): item is SkeletonItem {
 }
 
 export function FeedPage() {
+  const [activeFilter, setActiveFilter] = useState<FeedFilter>("all");
+
   const {
     data,
     isLoading,
@@ -34,7 +34,7 @@ export function FeedPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useFeedQuery();
+  } = useFeedQuery(activeFilter);
 
   const insets = useSafeAreaInsets();
 
@@ -60,6 +60,12 @@ export function FeedPage() {
   if (isError) {
     return (
       <View style={[styles.container, styles.centered]}>
+        <FeedTabBar
+          tabs={TABS}
+          activeFilter={activeFilter}
+          onSelect={setActiveFilter}
+          paddingTop={insets.top}
+        />
         <ErrorState
           onRetry={refetch}
           loading={isRefetching}
@@ -72,13 +78,18 @@ export function FeedPage() {
 
   return (
     <View style={styles.container}>
+      <FeedTabBar
+        tabs={TABS}
+        activeFilter={activeFilter}
+        onSelect={setActiveFilter}
+        paddingTop={insets.top}
+      />
       <FlashList
         data={listData}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{
-          paddingTop: insets.top,
           paddingBottom: insets.bottom,
         }}
         ItemSeparatorComponent={() => (
@@ -90,7 +101,6 @@ export function FeedPage() {
         refreshControl={
           <RefreshControl
             tintColor={tokens.color.accent.primary}
-            progressViewOffset={insets.top}
             refreshing={isRefetching}
             onRefresh={refetch}
           />

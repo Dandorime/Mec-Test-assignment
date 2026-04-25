@@ -14,11 +14,15 @@ export const tokens = {
       primary: "#111416",
       secondary: "#57626F",
       tertiary: "#5C5C5C",
+      gray: "#68727D",
+      placeholder: "#A4AAB0",
       onAccent: "#FFFFFF",
     },
     error: "#E53935",
     like: "#FF2B75",
+    likeIconActive: "#FFEAF1",
     skeleton: "#EEEFF1",
+    border: "#E8ECEF",
   },
   button: {
     primary: {

@@ -21,7 +21,7 @@ class FeedStore {
     const nextIsLiked = !current.isLiked;
     this.likeOverrides.set(post.id, {
       isLiked: nextIsLiked,
-      likesCount: nextIsLiked ? current.likesCount + 1 : current.likesCount - 1,
+      likesCount: Math.max(0, nextIsLiked ? current.likesCount + 1 : current.likesCount - 1),
     });
   }
 

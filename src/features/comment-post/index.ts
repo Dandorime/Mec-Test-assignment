@@ -1,1 +1,9 @@
 export { CommentButton } from './ui/CommentButton';
+export { CommentItem } from './ui/CommentItem';
+export { CommentInput } from './ui/CommentInput';
+export { useCommentsQuery } from './model/useCommentsQuery';
+export { useCreateComment } from './model/useCreateComment';
+export { CommentLikeButton } from './ui/CommentLikeButton';
+export { commentLikeStore } from './model/CommentLikeStore';
+export { prependComment } from './model/prependComment';
+export { CommentItemSkeleton } from './ui/CommentItemSkeleton';

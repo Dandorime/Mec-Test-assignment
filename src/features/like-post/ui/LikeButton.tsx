@@ -2,7 +2,9 @@ import { feedStore, type Post } from "@entities/post";
 import LikeBorder from "@shared/assets/svgs/like_border.svg";
 import LikeSolid from "@shared/assets/svgs/like_solid.svg";
 import { tokens } from "@shared/constants/tokens";
+import { formatCount } from "@shared/lib/formatCount";
 import { useButtonColor } from "@shared/lib/useButtonColor";
+import * as Haptics from "expo-haptics";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useRef } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
@@ -11,12 +13,6 @@ import { useLikePost } from "../model/useLikePost";
 
 interface LikeButtonProps {
   post: Post;
-}
-
-function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
 }
 
 export const LikeButton = observer(function LikeButton({
@@ -49,7 +45,10 @@ export const LikeButton = observer(function LikeButton({
 
   return (
     <Pressable
-      onPress={toggle}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        toggle();
+      }}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
       disabled={isPending}
@@ -57,7 +56,7 @@ export const LikeButton = observer(function LikeButton({
     >
       <Animated.View style={[styles.container, bgStyle]}>
         {isLiked ? (
-          <LikeSolid width={24} height={24} />
+          <LikeSolid color={tokens.color.likeIconActive} width={24} height={24} />
         ) : (
           <LikeBorder width={24} height={24} />
         )}

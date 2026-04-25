@@ -30,6 +30,26 @@ export interface PaginatedPosts {
   hasMore: boolean;
 }
 
+export interface Comment {
+  id: string;
+  postId: string;
+  author: Author;
+  text: string;
+  likesCount?: number;
+  createdAt: string;
+}
+
+export interface PaginatedComments {
+  comments: Comment[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export type WsEvent =
+  | { type: 'ping' }
+  | { type: 'like_updated'; postId: string; likesCount: number }
+  | { type: 'comment_added'; postId: string; comment: Comment };
+
 export interface ApiResponse<T> {
   ok: true;
   data: T;
