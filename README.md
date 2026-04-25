@@ -1,15 +1,24 @@
 # mecenate-test
 
-Тестовое React Native приложение на Expo. Лента постов с поддержкой платного контента, оптимистичными лайками и пагинацией.
+Тестовое React Native приложение на Expo. Лента постов с поддержкой платного контента, оптимистичными лайками, пагинацией, системой комментариев и real-time обновлениями через WebSocket.
+
+## Возможности
+
+- **Лента постов** с фильтрацией по типу (все / бесплатные / платные) и курсорной пагинацией
+- **Оптимистичные лайки** — мгновенный отклик с автоматическим откатом при ошибке
+- **Страница поста** — полный контент, комментарии, сортировка, pull-to-refresh
+- **Комментарии** — бесконечная прокрутка, оптимистичное добавление, локальные лайки
+- **Real-time** — live-обновление счётчиков лайков и новых комментариев через WebSocket с exponential backoff при реконнекте
 
 ## Стек
 
 - **Expo** (SDK 54, New Architecture)
 - **expo-router** — файловая маршрутизация
-- **TanStack Query v5** — серверное состояние, кэш, пагинация
-- **MobX** — оптимистичные обновления UI (лайки)
-- **Reanimated 4** — анимации кнопок
-- **FlashList** — производительный список ленты
+- **TanStack Query v5** — серверное состояние, кэш, пагинация, оптимистичные обновления
+- **MobX** — локальное UI-состояние для лайков постов и комментариев
+- **Reanimated 4** — анимации кнопок и таб-бара
+- **FlashList** — производительный список ленты и комментариев
+- **WebSocket** — real-time обновления (через singleton `wsService` с exponential backoff)
 - **Manrope** — шрифтовая гарнитура
 
 ## Требования
@@ -71,10 +80,31 @@ npm run lint
 
 ```
 src/
-  shared/      # API-клиент, UI-кит, токены, утилиты
-  entities/    # Бизнес-сущности (post)
-  features/    # Действия пользователя (like-post, comment-post)
-  widgets/     # Составные блоки UI (post-card)
-  pages/       # Экраны (feed, post)
-app/           # Маршруты expo-router
+  shared/
+    api/          # Axios-клиент
+    assets/       # SVG-иконки
+    constants/    # Токены дизайн-системы (цвета, отступы, шрифты, радиусы)
+    lib/          # Утилиты: wsService, formatCount, useButtonColor
+    ui/           # UI-кит: Avatar, ErrorState, ...
+  entities/
+    post/         # Типы, postApi, queryKeys, FeedStore (MobX)
+  features/
+    like-post/    # Лайк поста: LikeButton + useLikePost
+    comment-post/ # Комментарии: UI-компоненты, хуки, CommentLikeStore (MobX)
+  widgets/
+    post-card/    # Составной блок карточки поста
+  pages/
+    feed/         # Лента: FeedPage, FeedTabBar, useFeedQuery
+    post/         # Страница поста: PostPage, usePostQuery, usePostRealtime
+app/              # Маршруты expo-router
 ```
+
+### Ключевые решения
+
+| Область | Решение |
+|---|---|
+| Серверное состояние | TanStack Query (infinite queries, optimistic updates, cache invalidation) |
+| UI-состояние лайков | MobX `FeedStore` / `CommentLikeStore` — изолированный оптимистичный toggle с откатом |
+| Real-time | Singleton `WsService` с reference-counting, exponential backoff (1s → 30s) |
+| Дизайн-система | Единый объект `tokens` — все цвета, отступы, шрифты только через токены |
+| Навигация | expo-router (file-based) |
